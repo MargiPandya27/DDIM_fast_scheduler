@@ -15,7 +15,7 @@ import torch
 
 def load_images_from_dir(img_dir: Path) -> List[Image.Image]:
     imgs = []
-    for p in sorted(img_dir.glob("*.png")):
+    for p in sorted(list(img_dir.glob("*.png")) + list(img_dir.glob("*.jpg"))):
         imgs.append(Image.open(p).convert("RGB"))
     return imgs
 
@@ -23,7 +23,8 @@ def load_images_from_dir(img_dir: Path) -> List[Image.Image]:
 def compute_is(images: List[Image.Image], device: str = "cuda" if torch.cuda.is_available() else "cpu") -> float:
     if len(images) == 0:
         return float("nan")
-    tensor = torch.stack([torch.from_numpy(np.array(i)).permute(2, 0, 1).float() / 255.0 for i in images])
+    # Keep as uint8 [0,255]
+    tensor = torch.stack([torch.from_numpy(np.array(i)).permute(2, 0, 1) for i in images]).to(torch.uint8)
     metric = InceptionScore().to(device)
     with torch.no_grad():
         score = metric(tensor.to(device))
@@ -46,15 +47,15 @@ def main() -> None:
 
     gen_dir = Path(args.generated)
     groups = {}
-    for sub in gen_dir.iterdir():
-        if sub.is_file():
-            continue
-        imgs = load_images_from_dir(sub)
+
+    # load all images directly in the folder
+    imgs = load_images_from_dir(gen_dir)
+    if len(imgs) > 0:
         start = time.time()
         is_score = compute_is(imgs)
-        fid_score = compute_fid(sub, ref_name=args.ref)
+        fid_score = compute_fid(gen_dir, ref_name=args.ref)
         seconds = time.time() - start
-        groups[sub.name] = {
+        groups[gen_dir.name] = {
             "count": len(imgs),
             "inception_score": is_score,
             "fid": fid_score,
@@ -67,5 +68,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
-
