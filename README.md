@@ -1,4 +1,4 @@
-# DDIM Fast Image Generation
+# Prompt Adaptive DDIM Scheduler
 
 A Python package for fast image generation using DDIM (Denoising Diffusion Implicit Models) with adaptive step scheduling. This project demonstrates how to optimize diffusion models for speed while maintaining quality.
 
@@ -8,7 +8,15 @@ A Python package for fast image generation using DDIM (Denoising Diffusion Impli
 - **Adaptive Step Scheduling**: Dynamically chooses the number of denoising steps based on prompt complexity
 - **Early Stopping**: Stops generation early when quality improvement plateaus
 - **Quality Metrics**: FID and Inception Score evaluation
-- **Visualization**: Generate comparison GIFs and quality vs speed plots
+
+
+ Prompt 1: a detailed portrait of a majestic lion in golden hour lighting with dramatic shadows
+ <img width="1225" height="292" alt="demo1" src="https://github.com/user-attachments/assets/c3ed43c6-fcbc-47a4-9b46-9ced6480be47" />
+
+Prompt 2: a cat
+ <img width="1234" height="288" alt="demo2" src="https://github.com/user-attachments/assets/7b003dfc-8145-4251-af39-317756b9df10" />
+
+
 
 ## Installation
 
@@ -32,32 +40,29 @@ pip install -e .
 
 ### 1. Generate Images
 
+1. Detail oriented prompt 
 ```bash
 # Generate with different step counts
-python -m ddim_fast.cli.generate --prompt "a beautiful landscape with mountains and lakes" --steps 10 20 50 100
+python -m ddim_fast.cli.generate --prompt "a detailed portrait of a majestic full body lion in golden hour lighting with dramatic shadows" --steps 10 20 50 100
 
 # Generate with adaptive step scheduling
-python -m ddim_fast.cli.generate --prompt "a detailed portrait of a cat" --adaptive
+python -m ddim_fast.cli.generate --prompt "a detailed portrait of a majestic full body lion in golden hour lighting with dramatic shadows" --adaptive --height 512 --width 512 --seed 42
 
-# Generate with custom settings
-python -m ddim_fast.cli.generate --prompt "futuristic city skyline" --steps 10 20 50 --height 512 --width 512 --seed 42
+```
+
+1. Simple less wordy prompt 
+```bash
+# Generate with adaptive step scheduling
+python -m ddim_fast.cli.generate --prompt "a portrait of a cat" --adaptive --height 512 --width 512 --seed 42
+
 ```
 
 ### 2. Evaluate Quality
 
+Note: FID and IS score works well for more number of generated images.
 ```bash
 # Compute FID and Inception Score
 python -m ddim_fast.cli.evaluate --generated outputs --out metrics.json
-```
-
-### 3. Create Visualizations
-
-```bash
-# Plot quality vs speed trade-off
-python -m ddim_fast.cli.plot --metrics metrics.json --out tradeoff.png
-
-# Create comparison GIF
-python -m ddim_fast.cli.gifify --dir outputs --out comparison.gif
 ```
 
 ## Google Colab
@@ -111,8 +116,6 @@ Expected performance on different hardware:
 
 | Hardware | 10 steps | 20 steps | 50 steps | 100 steps |
 |----------|----------|----------|----------|-----------|
-| RTX 4090 | ~1s      | ~2s      | ~5s      | ~10s      |
-| RTX 3080 | ~2s      | ~4s      | ~10s     | ~20s      |
 | Colab T4 | ~3s      | ~6s      | ~15s     | ~30s      |
 
 ## License
