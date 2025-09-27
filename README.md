@@ -118,6 +118,3 @@ Expected performance on different hardware:
 |----------|----------|----------|----------|-----------|
 | Colab T4 | ~3s      | ~6s      | ~15s     | ~30s      |
 
-## License
-
-MIT License
